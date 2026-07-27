@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Customer Churn Predictor</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header>
+  <h1>Customer Churn Predictor</h1>
+  <p class="subtitle">
+    Local, offline prediction &mdash; a trained scikit-learn/XGBoost model runs on your
+    machine. No external API keys or services are used.
+  </p>
+</header>
+
+<main>
+  <section class="card">
+    <h2>Customer Details</h2>
+    <form id="churn-form">
+      <div class="form-grid">
+
+        <fieldset>
+          <legend>Account</legend>
+
+          <label for="tenure">Tenure (months)
+            <input type="number" id="tenure" name="tenure" min="0" max="100" value="12" required />
+          </label>
+
+          <label for="Contract">Contract
+            <select id="Contract" name="Contract" required>
+              <option value="Month-to-month">Month-to-month</option>
+              <option value="One year">One year</option>
+              <option value="Two year">Two year</option>
+            </select>
+          </label>
+
+          <label for="PaperlessBilling">Paperless Billing
+            <select id="PaperlessBilling" name="PaperlessBilling" required>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+          </label>
+
+          <label for="PaymentMethod">Payment Method
+            <select id="PaymentMethod" name="PaymentMethod" required>
+              <option value="Electronic check">Electronic check</option>
+              <option value="Mailed check">Mailed check</option>
+              <option value="Bank transfer (automatic)">Bank transfer (automatic)</option>
+              <option value="Credit card (automatic)">Credit card (automatic)</option>
+            </select>
+          </label>
+
+          <label for="MonthlyCharges">Monthly Charges ($)
+            <input type="number" id="MonthlyCharges" name="MonthlyCharges" min="0" max="1000" step="0.01" value="70.00" required />
+          </label>
+
+          <label for="TotalCharges">Total Charges ($)
+            <input type="number" id="TotalCharges" name="TotalCharges" min="0" max="100000" step="0.01" value="840.00" required />
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Demographics</legend>
+
+          <label for="gender">Gender
+            <select id="gender" name="gender" required>
+              <option value="Female">Female</option>
+              <option value="Male">Male</option>
+            </select>
+          </label>
+
+          <label for="SeniorCitizen">Senior Citizen
+            <select id="SeniorCitizen" name="SeniorCitizen" required>
+              <option value="0">No</option>
+              <option value="1">Yes</option>
+            </select>
+          </label>
+
+          <label for="Partner">Has Partner
+            <select id="Partner" name="Partner" required>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+          </label>
+
+          <label for="Dependents">Has Dependents
+            <select id="Dependents" name="Dependents" required>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Phone Service</legend>
+
+          <label for="PhoneService">Phone Service
+            <select id="PhoneService" name="PhoneService" required>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+          </label>
+
+          <label for="MultipleLines">Multiple Lines
+            <select id="MultipleLines" name="MultipleLines" required>
+              <option value="No">No</option>
+              <option value="Yes">Yes</option>
+              <option value="No phone service">No phone service</option>
+            </select>
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Internet Service</legend>
+
+          <label for="InternetService">Internet Service
+            <select id="InternetService" name="InternetService" required>
+              <option value="DSL">DSL</option>
+              <option value="Fiber optic">Fiber optic</option>
+              <option value="No">No</option>
+            </select>
+          </label>
+
+          <label for="OnlineSecurity">Online Security
+            <select id="OnlineSecurity" name="OnlineSecurity" required>
+              <option value="No">No</option>
+              <option value="Yes">Yes</option>
+              <option value="No internet service">No internet service</option>
+            </select>
+          </label>
+
+          <label for="OnlineBackup">Online Backup
+            <select id="OnlineBackup" name="OnlineBackup" required>
+              <option value="No">No</option>
+              <option value="Yes">Yes</option>
+              <option value="No internet service">No internet service</option>
+            </select>
+          </label>
+
+          <label for="DeviceProtection">Device Protection
+            <select id="DeviceProtection" name="DeviceProtection" required>
+              <option value="No">No</option>
+              <option value="Yes">Yes</option>
+              <option value="No internet service">No internet service</option>
+            </select>
+          </label>
+
+          <label for="TechSupport">Tech Support
+            <select id="TechSupport" name="TechSupport" required>
+              <option value="No">No</option>
+              <option value="Yes">Yes</option>
+              <option value="No internet service">No internet service</option>
+            </select>
+          </label>
+
+          <label for="StreamingTV">Streaming TV
+            <select id="StreamingTV" name="StreamingTV" required>
+              <option value="No">No</option>
+              <option value="Yes">Yes</option>
+              <option value="No internet service">No internet service</option>
+            </select>
+          </label>
+
+          <label for="StreamingMovies">Streaming Movies
+            <select id="StreamingMovies" name="StreamingMovies" required>
+              <option value="No">No</option>
+              <option value="Yes">Yes</option>
+              <option value="No internet service">No internet service</option>
+            </select>
+          </label>
+        </fieldset>
+
+      </div>
+
+      <button type="submit" id="submit-btn">Predict Churn</button>
+    </form>
+
+    <div id="error-box" class="error-box hidden"></div>
+
+    <div id="result" class="result hidden">
+      <h2>Prediction</h2>
+      <div class="result-summary">
+        <div class="result-tile" id="prediction-tile">
+          <span class="result-label">Will Churn?</span>
+          <span class="result-value" id="prediction-value">-</span>
+        </div>
+        <div class="result-tile">
+          <span class="result-label">Churn Probability</span>
+          <span class="result-value" id="probability-value">-</span>
+        </div>
+      </div>
+
+      <h3>Top Contributing Factors</h3>
+      <ul id="factors-list" class="factors-list"></ul>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Model Comparison</h2>
+    <p class="subtitle">Metrics from held-out test data, computed once during training.</p>
+    <div id="model-info-box">
+      <p>Loading model info...</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>Runs entirely on a locally trained model &mdash; no external API keys required.</p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

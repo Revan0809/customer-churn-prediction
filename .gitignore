@@ -1,0 +1,17 @@
+# Data
+data/*.csv
+
+# Trained model artifacts are committed intentionally (see models/) so the
+# deployed backend can load them at startup without retraining. Regenerate
+# locally any time via `python -m src.train` and `python -m src.explain`.
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db

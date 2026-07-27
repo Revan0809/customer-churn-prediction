@@ -1,0 +1,104 @@
+{
+  "best_model_name": "XGBoost",
+  "feature_names": [
+    "num__tenure",
+    "num__MonthlyCharges",
+    "num__TotalCharges",
+    "cat__gender_Male",
+    "cat__SeniorCitizen_1",
+    "cat__Partner_Yes",
+    "cat__Dependents_Yes",
+    "cat__PhoneService_Yes",
+    "cat__MultipleLines_No",
+    "cat__MultipleLines_No phone service",
+    "cat__MultipleLines_Yes",
+    "cat__InternetService_DSL",
+    "cat__InternetService_Fiber optic",
+    "cat__InternetService_No",
+    "cat__OnlineSecurity_No",
+    "cat__OnlineSecurity_No internet service",
+    "cat__OnlineSecurity_Yes",
+    "cat__OnlineBackup_No",
+    "cat__OnlineBackup_No internet service",
+    "cat__OnlineBackup_Yes",
+    "cat__DeviceProtection_No",
+    "cat__DeviceProtection_No internet service",
+    "cat__DeviceProtection_Yes",
+    "cat__TechSupport_No",
+    "cat__TechSupport_No internet service",
+    "cat__TechSupport_Yes",
+    "cat__StreamingTV_No",
+    "cat__StreamingTV_No internet service",
+    "cat__StreamingTV_Yes",
+    "cat__StreamingMovies_No",
+    "cat__StreamingMovies_No internet service",
+    "cat__StreamingMovies_Yes",
+    "cat__Contract_Month-to-month",
+    "cat__Contract_One year",
+    "cat__Contract_Two year",
+    "cat__PaperlessBilling_Yes",
+    "cat__PaymentMethod_Bank transfer (automatic)",
+    "cat__PaymentMethod_Credit card (automatic)",
+    "cat__PaymentMethod_Electronic check",
+    "cat__PaymentMethod_Mailed check"
+  ],
+  "metrics": {
+    "Logistic Regression": {
+      "precision": 0.5025,
+      "recall": 0.7968,
+      "f1": 0.6163,
+      "roc_auc": 0.8395,
+      "confusion_matrix": [
+        [
+          740,
+          295
+        ],
+        [
+          76,
+          298
+        ]
+      ],
+      "cv_roc_auc_mean": 0.8526,
+      "cv_roc_auc_std": 0.0028
+    },
+    "Random Forest": {
+      "precision": 0.5782,
+      "recall": 0.5829,
+      "f1": 0.5806,
+      "roc_auc": 0.8192,
+      "confusion_matrix": [
+        [
+          876,
+          159
+        ],
+        [
+          156,
+          218
+        ]
+      ],
+      "cv_roc_auc_mean": 0.9287,
+      "cv_roc_auc_std": 0.0056
+    },
+    "XGBoost": {
+      "precision": 0.5736,
+      "recall": 0.615,
+      "f1": 0.5935,
+      "roc_auc": 0.8405,
+      "confusion_matrix": [
+        [
+          864,
+          171
+        ],
+        [
+          144,
+          230
+        ]
+      ],
+      "cv_roc_auc_mean": 0.9367,
+      "cv_roc_auc_std": 0.0044
+    }
+  },
+  "test_size": 0.2,
+  "random_state": 42,
+  "positive_class": "Churn = Yes"
+}

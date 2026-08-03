@@ -19,10 +19,6 @@ from __future__ import annotations
 import re
 
 import joblib
-import matplotlib
-
-matplotlib.use("Agg")  # headless: no display available on a server/CI box
-import matplotlib.pyplot as plt
 import numpy as np
 import shap
 
@@ -115,6 +111,11 @@ def get_top_contributing_features(
 
 
 def main():
+    import matplotlib
+
+    matplotlib.use("Agg")  # headless: no display available on a server/CI box
+    import matplotlib.pyplot as plt
+
     from src.preprocessing import load_data, load_preprocessor, split_X_y, get_feature_names
     from sklearn.model_selection import train_test_split
 

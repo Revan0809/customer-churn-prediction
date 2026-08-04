@@ -10,3 +10,8 @@ matplotlib==3.8.4
 seaborn==0.13.2
 joblib==1.4.2
 jupyter==1.0.0
+
+# SQL + BI analytics layer (sql/, dashboard/) -- sqlite3 is Python stdlib,
+# no extra dependency needed for the sql/ scripts themselves.
+streamlit==1.60.0
+altair==6.2.2

@@ -1,0 +1,13 @@
+# Streamlit Community Cloud uses the requirements.txt closest to the app's
+# main file (dashboard/app.py), so this is scoped to just what the dashboard
+# imports -- streamlit/altair for the UI, plus the same ML libs src/ needs
+# so joblib can unpickle models/*.joblib and rebuild the SHAP explainer.
+streamlit==1.60.0
+altair==6.2.2
+pandas==2.2.2
+numpy==1.26.4
+scikit-learn==1.5.0
+imbalanced-learn==0.12.3
+xgboost==2.0.3
+shap==0.45.1
+joblib==1.4.2

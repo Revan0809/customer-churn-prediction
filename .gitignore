@@ -1,6 +1,13 @@
 # Data
 data/*.csv
 
+# SQL + BI layer: query_results/ is regenerated output, not committed.
+# sql/churn.db IS committed intentionally (like models/*.joblib below) so
+# Streamlit Community Cloud can serve the dashboard without needing the
+# raw (non-committed) dataset at deploy time. Regenerate it locally any
+# time via `python sql/load_to_sqlite.py`.
+sql/query_results/
+
 # Trained model artifacts are committed intentionally (see models/) so the
 # deployed backend can load them at startup without retraining. Regenerate
 # locally any time via `python -m src.train` and `python -m src.explain`.

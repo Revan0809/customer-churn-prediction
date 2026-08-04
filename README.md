@@ -64,6 +64,13 @@ customerchurn/
 │   ├── style.css
 │   └── script.js
 ├── models/                 # Generated: fitted pipeline, model, metrics (not committed)
+├── sql/
+│   ├── load_to_sqlite.py   # Loads data/telco_churn.csv into sql/churn.db
+│   ├── queries.sql         # Business-facing SQL: churn rate, cohorts, top segments
+│   ├── run_queries.py      # Runs every query in queries.sql, saves CSVs
+│   └── query_results/      # Generated: one CSV per query (not committed)
+├── dashboard/
+│   └── app.py              # Streamlit BI dashboard on top of sql/churn.db
 └── requirements.txt         # Environment for notebook/training work
 ```
 
@@ -140,6 +147,58 @@ outside this README.
 
 ---
 
+## SQL + BI Analytics Layer
+
+On top of the ML pipeline above, this project also includes an additive
+**SQL + BI analytics layer** (`sql/` and `dashboard/`) aimed at a different
+audience than the `/predict` endpoint: a retention or ops team that wants to
+query and slice churn with plain SQL, not call a model. It doesn't touch or
+depend on `src/`, `backend/`, `frontend/`, or `models/` — it reads the same
+raw CSV and optionally reuses `src/explain.py`'s SHAP logic, but everything
+else in those folders is untouched.
+
+- **`sql/load_to_sqlite.py`** loads `data/telco_churn.csv` into a local SQLite
+  database at `sql/churn.db` (table `customers`), with the same `TotalCharges`
+  blank-string fix as `src/preprocessing.py`, and clean snake_case column names.
+- **`sql/queries.sql`** holds hand-written, commented, business-facing SQL:
+  overall and segmented churn rates, tenure-bucket cohorts built with `CASE
+  WHEN`, a window-function (`LAG` + `PARTITION BY`) cohort trend, a CTE-based
+  trend query, and a top-3-highest-risk-segments query. See the full
+  query-by-query breakdown below.
+- **`sql/run_queries.py`** runs every query in `queries.sql` against `churn.db`
+  and saves each result to its own CSV in `sql/query_results/`.
+- **`dashboard/app.py`** is a small Streamlit app that queries `churn.db`
+  directly (no pandas-side filtering) to show a live churn-rate KPI, a
+  segment bar chart, a tenure-cohort trend line, a filterable customer table,
+  and — if `models/` has already been populated by `src/train.py` — a SHAP
+  top-churn-drivers chart reused from `src/explain.py`.
+
+**Why this layer exists:** a trained model answers "will *this* customer
+churn," but a retention team also needs to answer *aggregate* questions a
+single model score doesn't: which contract types, payment methods, or
+tenure cohorts are bleeding the most customers *right now*, and which
+specific segments are worth prioritizing this quarter. That's a SQL/BI
+question, not a per-record prediction question, and keeping it queryable
+(rather than buried in a notebook) is what lets a non-ML stakeholder
+self-serve those answers.
+
+### How to run it
+
+```bash
+# 1. Build sql/churn.db from the raw CSV
+python sql/load_to_sqlite.py
+
+# 2. Run every query in sql/queries.sql, saving results to sql/query_results/
+python sql/run_queries.py
+
+# 3. Launch the interactive dashboard (reads sql/churn.db directly)
+streamlit run dashboard/app.py
+```
+
+`streamlit` and `altair` are included in the root `requirements.txt`.
+
+---
+
 ## Local setup & run instructions
 
 ### 0. Requirements
@@ -211,8 +270,7 @@ services from a single connected GitHub repo:
 
 ### Steps
 
-1. Push this repo to GitHub (already done if you're reading this after asking
-   Claude to deploy it).
+1. Push this repo to GitHub.
 2. In the [Render dashboard](https://dashboard.render.com), click **New +** →
    **Blueprint**, connect your GitHub account, and select this repo. Render
    will detect `render.yaml` and propose both services — click **Apply**.
@@ -233,6 +291,42 @@ services from a single connected GitHub repo:
   exact origin in `backend/main.py` if you deploy this somewhere that matters.
 - If you retrain locally (`python -m src.train`), commit the updated
   `models/*.joblib` files and push to redeploy the backend with the new model.
+
+---
+
+## Deploying the dashboard (Streamlit Community Cloud)
+
+The `dashboard/` app is deployed separately from the Render blueprint above,
+on [Streamlit Community Cloud](https://share.streamlit.io) — a free host
+purpose-built for Streamlit apps, using the same connected GitHub repo.
+
+`dashboard/requirements.txt` and `dashboard/.python-version` sit next to
+`dashboard/app.py` so Streamlit Cloud picks them up automatically (Community
+Cloud uses whichever `requirements.txt` is closest to the app's main file,
+same convention as `backend/requirements.txt` for the FastAPI service).
+`sql/churn.db` is committed to the repo (like `models/*.joblib`) since
+Streamlit Cloud has no build step to regenerate it from the raw dataset.
+
+### Steps
+
+1. Push this repo to GitHub.
+2. Go to [share.streamlit.io](https://share.streamlit.io) and sign in with
+   GitHub.
+3. Click **New app** → **Deploy a public app from GitHub**, pick this repo
+   and branch, and set **Main file path** to `dashboard/app.py`.
+4. Click **Deploy**. Streamlit Cloud installs `dashboard/requirements.txt`
+   and starts the app — no other configuration needed.
+
+### Notes
+
+- Streamlit Community Cloud apps sleep after a period of inactivity; the
+  first visit after idling takes a few seconds to wake up.
+- If you retrain locally or reload the data (`python sql/load_to_sqlite.py`),
+  commit the updated `sql/churn.db` and push — Streamlit Cloud auto-redeploys
+  on every push to the connected branch.
+- The SHAP "top churn drivers" section only renders if `models/*.joblib`
+  exist in the repo (they're committed by default); otherwise the dashboard
+  shows an info message and everything else still works.
 
 ---
 
